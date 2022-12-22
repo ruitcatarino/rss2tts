@@ -40,9 +40,9 @@ def detect_language(toread):
         print("Text in English!")
         return "EN-US"
 
-def rsstotext(url):
+def rsstotext(url,pos):
     NewsFeed = feedparser.parse(url)
-    entry = NewsFeed.entries[1]
+    entry = NewsFeed.entries[pos]
 
     text_maker = html2text.HTML2Text()
     text_maker.ignore_links = True
@@ -62,17 +62,17 @@ def change_rate(engine):
     rate = int(input())
     engine.setProperty('rate', rate)
 
-def read_rss(engine,url):
-    toread = rsstotext(url)
-
-    language = detect_language(toread)
-
-    tts(engine,toread,language)
-
 def url_input():
     clear()
     print("Insert a RSS URL feed: ")
     return input()
+
+def read_rss(engine,url):
+    toread = rsstotext(url,1)
+
+    language = detect_language(toread)
+
+    tts(engine,toread,language)
 
 def main_menu(engine,url="None"):
 
