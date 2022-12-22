@@ -31,9 +31,7 @@ if __name__ == "__main__":
 
     change_voice(engine,"PT-BR")
     engine.setProperty('rate', 200)
-
-    #tts(engine)
-
+    
     NewsFeed = feedparser.parse("https://www.rtp.pt/noticias/rss")
     entry = NewsFeed.entries[1]
 
