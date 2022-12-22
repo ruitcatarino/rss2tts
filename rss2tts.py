@@ -3,6 +3,9 @@ import feedparser
 import html2text
 import re
 from langdetect import detect
+import os
+
+#os.system('cls' if os.name == 'nt' else 'clear')
 
 def change_voice(engine, language):
     for voice in engine.getProperty('voices'):
