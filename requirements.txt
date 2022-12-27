@@ -1,0 +1,4 @@
+langdetect
+feedparser
+html2text
+pyttsx3
