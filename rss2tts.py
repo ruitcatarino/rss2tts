@@ -58,7 +58,7 @@ def rsstotext(url,pos):
 
 def change_rate(engine):
     clear()
-    print("Default rate: 170 | (slow:100, fast:200)\n\nYou want to change the rate too:")
+    print("Default rate: 175 | (slow:100, fast:200)\n\nYou want to change the rate too:")
     rate = int(input())
     engine.setProperty('rate', rate)
 
@@ -67,12 +67,38 @@ def url_input():
     print("Insert a RSS URL feed: ")
     return input()
 
-def read_rss(engine,url):
-    toread = rsstotext(url,1)
+def read_rss(engine,url,pos):
+    toread = rsstotext(url,pos)
 
     language = detect_language(toread)
 
     tts(engine,toread,language)
+
+def load_rss(engine,url):
+    pos = 0
+
+    NewsFeed = feedparser.parse(url)
+
+    while 1:
+        clear()
+        print("Choose one:\n{}. {}\n{}. {}\n{}. {}\nN. Next page\nB. Previous page\n0. Exit".format(pos+1,NewsFeed.entries[pos].title,pos+2,NewsFeed.entries[pos+1].title,pos+3,NewsFeed.entries[pos+2].title))
+        choice = input()
+
+        if choice == str(pos+1):
+            read_rss(engine,url,pos)
+        elif choice == str(pos+2):
+            read_rss(engine,url,pos+1)
+        elif choice == str(pos+3):
+            read_rss(engine,url,pos+2)
+        elif choice == "N":
+            if pos + 3 < len(NewsFeed.entries)+3:
+                pos += 3
+        elif choice == "B":
+            if pos - 3 >= 0:
+                pos -= 3
+        elif choice == "0":
+            break
+
 
 def main_menu(engine,url="None"):
 
@@ -92,7 +118,8 @@ def main_menu(engine,url="None"):
             choice = input()
 
         if choice == "1":
-            read_rss(engine,url)
+            load_rss(engine,url)
+            #read_rss(engine,url,1)
         elif choice == "2":
             url = url_input()
         elif choice == "3":
@@ -105,7 +132,7 @@ def main_menu(engine,url="None"):
 if __name__ == "__main__":
     #Create object (voice)
     engine = pyttsx3.init()
-    engine.setProperty('rate', 170)
+    engine.setProperty('rate', 175)
 
     main_menu(engine)
 
