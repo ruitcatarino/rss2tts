@@ -75,14 +75,27 @@ def read_rss(engine,url,pos):
     tts(engine,toread,language)
 
 def load_rss(engine,url):
+
+    text = "Choose one:\n{}. {}\n{}. {}\n{}. {}\nN. Next page\nB. Previous page\n0. Exit"
+
+    text_inv = text + "\nPlease Input one of the avaliable options!\n"
+
     pos = 0
 
     NewsFeed = feedparser.parse(url)
 
     while 1:
+
+        ops = [str(pos+1),str(pos+2),str(pos+3),"N","B","0"]
+
         clear()
-        print("Choose one:\n{}. {}\n{}. {}\n{}. {}\nN. Next page\nB. Previous page\n0. Exit".format(pos+1,NewsFeed.entries[pos].title,pos+2,NewsFeed.entries[pos+1].title,pos+3,NewsFeed.entries[pos+2].title))
+        print(text.format(pos+1,NewsFeed.entries[pos].title,pos+2,NewsFeed.entries[pos+1].title,pos+3,NewsFeed.entries[pos+2].title))
         choice = input()
+
+        while choice not in ops:
+            clear()
+            print(text_inv.format(pos+1,NewsFeed.entries[pos].title,pos+2,NewsFeed.entries[pos+1].title,pos+3,NewsFeed.entries[pos+2].title))
+            choice = input()
 
         if choice == str(pos+1):
             read_rss(engine,url,pos)
@@ -91,7 +104,7 @@ def load_rss(engine,url):
         elif choice == str(pos+3):
             read_rss(engine,url,pos+2)
         elif choice == "N":
-            if pos + 3 < len(NewsFeed.entries)+3:
+            if pos + 6 <= len(NewsFeed.entries):
                 pos += 3
         elif choice == "B":
             if pos - 3 >= 0:
@@ -102,19 +115,24 @@ def load_rss(engine,url):
 
 def main_menu(engine,url="None"):
 
+    text = "RSS URL feed: {}\n\nOptions:\n1. Load RSS feed\n2. Change URL of RSS feed\n3. Change TTS rate\n0. Exit\n"
+
+    text_inv = text + "\nPlease Input one of the avaliable options!\n"
+
+    ops = ["0","1","2","3"]
+
     while 1:
-        ops = ["0","1","2","3"]
 
         if url == "None":
             url = url_input()
 
         clear()
-        print("RSS URL feed: {}\n\nOptions:\n1. Load RSS feed\n2. Change URL of RSS feed\n3. Change TTS rate\n0. Exit\n".format(url))
+        print(text.format(url))
         choice = input()
 
         while choice not in ops:
             clear()
-            print("RSS URL feed: {}\n\nOptions:\n1. Load RSS feed\n2. Change URL of RSS feed\n3. Change TTS rate\n0. Exit\n\nPlease Input one of the avaliable options!\n".format(url))
+            print(text_inv.format(url))
             choice = input()
 
         if choice == "1":
