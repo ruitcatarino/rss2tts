@@ -6,9 +6,18 @@ import sys
 import re
 import os
 
+"""
+clear cleans the terminal.
+""" 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+"""
+change_voice changes the TTS language.
+
+:param engine: Engine from TTS
+:param language: language of the article
+""" 
 def change_voice(engine, language):
     for voice in engine.getProperty('voices'):
         lg = voice.id.split("\\")
@@ -20,9 +29,21 @@ def change_voice(engine, language):
 
     print("Language '{}' not found. Set to default.".format(language))
 
+"""
+end_voice clears the engine.
+
+:param engine: Engine from TTS
+""" 
 def end_voice(engine):
     engine.stop()
 
+"""
+tts reads the article.
+
+:param engine: Engine from TTS
+:param toread: text to read
+:param language: language of the article
+""" 
 def tts(engine,toread,language):
     change_voice(engine,language)
 
@@ -30,6 +51,12 @@ def tts(engine,toread,language):
 
     engine.runAndWait()
 
+"""
+detect_language detects the language from the article.
+
+:param toread: text to read
+:return: the language from the article
+""" 
 def detect_language(toread):
     language = detect(toread)
 
@@ -40,6 +67,13 @@ def detect_language(toread):
         print("Text in English!")
         return "EN-US"
 
+"""
+rsstotext reads article and converts it to plain text.
+
+:param url: URL of RSS
+:param pos: position of the article
+:return: plaintext from article
+""" 
 def rsstotext(url,pos):
     NewsFeed = feedparser.parse(url)
     entry = NewsFeed.entries[pos]
@@ -56,17 +90,34 @@ def rsstotext(url,pos):
 
     return toread
 
+"""
+change_rate change reading rate of TTS.
+
+:param engine: Engine from TTS
+""" 
 def change_rate(engine):
     clear()
     print("Default rate: 175 | (slow:100, fast:200)\n\nYou want to change the rate too:")
     rate = int(input())
     engine.setProperty('rate', rate)
 
+"""
+url_input reads URL inputed from user.
+
+:return: URL inputed from user
+""" 
 def url_input():
     clear()
     print("Insert a RSS URL feed: ")
     return input()
 
+"""
+read_rss detects laguage of article selected and reads it using TTS.
+
+:param engine: Engine from TTS
+:param url: URL of RSS
+:param pos: position of the article
+""" 
 def read_rss(engine,url,pos):
     toread = rsstotext(url,pos)
 
@@ -74,6 +125,13 @@ def read_rss(engine,url,pos):
 
     tts(engine,toread,language)
 
+
+"""
+load_rss grabs articles from RSS.
+
+:param engine: Engine from TTS
+:param url: URL of RSS
+""" 
 def load_rss(engine,url):
 
     text = "Choose one:\n{}. {}\n{}. {}\n{}. {}\nN. Next page\nB. Previous page\n0. Exit"
@@ -112,7 +170,12 @@ def load_rss(engine,url):
         elif choice == "0":
             break
 
+"""
+main_menu: displays the Main menu and its options
 
+:param engine: Engine from TTS
+:param url: URL of RSS
+""" 
 def main_menu(engine,url="None"):
 
     text = "RSS URL feed: {}\n\nOptions:\n1. Load RSS feed\n2. Change URL of RSS feed\n3. Change TTS rate\n0. Exit\n"
