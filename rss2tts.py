@@ -2,219 +2,205 @@ from langdetect import detect
 import feedparser
 import html2text
 import pyttsx3
-import sys
 import re
 import os
 
-"""
-clear cleans the terminal.
-""" 
-def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
+class RSSReader:
+    """
+    RSSReader class for reading RSS feeds using text-to-speech (TTS).
 
-"""
-change_voice changes the TTS language.
+    Attributes:
+        engine (pyttsx3.init()): The text-to-speech engine.
+        url (str): The URL of the RSS feed.
+    """
+    def __init__(self):
+        """
+        Initialize an RSSReader object with a TTS engine and default rate.
+        """
+        self.engine = pyttsx3.init()
+        self.engine.setProperty('rate', 175)
+        self.url = None
 
-:param engine: Engine from TTS
-:param language: language of the article
-""" 
-def change_voice(engine, language):
-    for voice in engine.getProperty('voices'):
-        lg = voice.id.split("\\")
-        lg = lg[6].split("_")
-        lg = lg[2]
-        if language == lg:
-            engine.setProperty('voice', voice.id)
-            return True
+    def clear_screen(self):
+        """
+        Clears the terminal screen (cross-platform).
+        """
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-    print("Language '{}' not found. Set to default.".format(language))
+    def change_voice(self, language):
+        """
+        Change the TTS voice based on the detected language or set it to default.
 
-"""
-end_voice clears the engine.
+        Args:
+            language (str): The language for which to set the voice.
 
-:param engine: Engine from TTS
-""" 
-def end_voice(engine):
-    engine.stop()
+        Returns:
+            bool: True if the voice is set; otherwise, False.
+        """
+        for voice in self.engine.getProperty('voices'):
+            lg = voice.id.split("\\")[-1].split("_")[2]
+            if language == lg:
+                self.engine.setProperty('voice', voice.id)
+                return True
+        print(f"Voice for language '{language}' not found. Using default voice.")
 
-"""
-tts reads the article.
+    def end_voice(self):
+        """
+        Stop the TTS engine.
+        """
+        self.engine.stop()
 
-:param engine: Engine from TTS
-:param toread: text to read
-:param language: language of the article
-""" 
-def tts(engine,toread,language):
-    change_voice(engine,language)
+    def tts(self, text, language):
+        """
+        Read the provided text using text-to-speech in the specified language.
 
-    engine.say(toread)
+        Args:
+            text (str): The text to be read.
+            language (str): The language for TTS.
 
-    engine.runAndWait()
+        Returns:
+            None
+        """
+        self.change_voice(language)
+        self.engine.say(text)
+        self.engine.runAndWait()
 
-"""
-detect_language detects the language from the article.
+    def detect_language(self, text):
+        """
+        Detect the language of the given text.
 
-:param toread: text to read
-:return: the language from the article
-""" 
-def detect_language(toread):
-    language = detect(toread)
+        Args:
+            text (str): The text to detect the language from.
 
-    if language == "pt":
-        print("Texto em Português!")
-        return "PT-BR"
-    else:
-        print("Text in English!")
-        return "EN-US"
+        Returns:
+            str: The language code (e.g., 'EN-US' or 'PT-BR').
+        """
+        language = detect(text)
+        print("Text in English!" if language != "pt" else "Texto em Português!")
+        return "EN-US" if language != "pt" else "PT-BR"
 
-"""
-rsstotext reads article and converts it to plain text.
+    def rsstotext(self, url, pos):
+        """
+        Fetch and convert an article from an RSS feed to plain text.
 
-:param url: URL of RSS
-:param pos: position of the article
-:return: plaintext from article
-""" 
-def rsstotext(url,pos):
-    NewsFeed = feedparser.parse(url)
-    entry = NewsFeed.entries[pos]
+        Args:
+            url (str): The URL of the RSS feed.
+            pos (int): The position of the article to retrieve.
 
-    text_maker = html2text.HTML2Text()
-    text_maker.ignore_links = True
-    text_maker.body_width = 0
+        Returns:
+            str: The plain text of the article.
+        """
+        NewsFeed = feedparser.parse(url)
+        entry = NewsFeed.entries[pos]
 
-    toread = text_maker.handle(entry.summary)
-    toread = toread.split("![](")
-    toread = ''.join(toread)
-    toread = re.sub(r'http\S+', '', toread)
-    print(toread)
+        text_maker = html2text.HTML2Text()
+        text_maker.ignore_links = True
+        text_maker.body_width = 0
 
-    return toread
+        to_read = text_maker.handle(entry.summary)
+        to_read = re.sub(r'http\S+', '', to_read)
 
-"""
-change_rate change reading rate of TTS.
+        return to_read
 
-:param engine: Engine from TTS
-""" 
-def change_rate(engine):
-    clear()
-    print("Default rate: 175 | (slow:100, fast:200)\n\nYou want to change the rate too:")
-    rate = int(input())
-    engine.setProperty('rate', rate)
+    def change_rate(self):
+        """
+        Change the TTS reading rate based on user input.
+        """
+        self.clear_screen()
+        print("Default rate: 175 | (slow: 100, fast: 200)\n\nEnter the new rate (e.g., 150):")
+        rate = int(input())
+        self.engine.setProperty('rate', rate)
 
-"""
-url_input reads URL inputed from user.
+    def input_url(self):
+        """
+        Prompt the user to input an RSS feed URL.
 
-:return: URL inputed from user
-""" 
-def url_input():
-    clear()
-    print("Insert a RSS URL feed: ")
-    return input()
+        Returns:
+            str: The user-inputted URL.
+        """
+        self.clear_screen()
+        print("Enter the RSS URL feed:")
+        return input()
 
-"""
-read_rss detects laguage of article selected and reads it using TTS.
+    def read_rss(self, pos):
+        """
+        Read an article from the RSS feed using TTS.
 
-:param engine: Engine from TTS
-:param url: URL of RSS
-:param pos: position of the article
-""" 
-def read_rss(engine,url,pos):
-    toread = rsstotext(url,pos)
+        Args:
+            pos (int): The position of the article to read.
+        """
+        to_read = self.rsstotext(self.url, pos)
+        language = self.detect_language(to_read)
+        self.tts(to_read, language)
 
-    language = detect_language(toread)
+    def load_rss(self):
+        """
+        Load articles from an RSS feed and provide a menu for selecting and reading them.
+        """
+        if not self.url:
+            self.url = self.input_url()
 
-    tts(engine,toread,language)
+        pos = 0
+        NewsFeed = feedparser.parse(self.url)
 
+        while True:
+            options = [pos + i for i in range(1, 4)] + [8, 9, 0]
+            self.clear_screen()
+            for i in range(3):
+                entry_num = pos + i + 1
+                if entry_num <= len(NewsFeed.entries):
+                    print(f"{entry_num}. {NewsFeed.entries[pos + i].title}")
 
-"""
-load_rss grabs articles from RSS.
+            print("8. Next page\n9. Previous page\n0. Exit")
+            try:
+                choice = int(input("Select an option: "))
+                if choice in options:
+                    if choice == 8:
+                        pos = min(pos + 3, len(NewsFeed.entries) - 3)
+                    elif choice == 9:
+                        pos = max(0, pos - 3)
+                    elif choice == 0:
+                        break
+                    else:
+                        selected_entry = pos + choice - 1
+                        if selected_entry >= 0:
+                            self.read_rss(selected_entry)
+                        else:
+                            print("Invalid entry number.")
+                else:
+                    print("Please input a valid option.")
+            except ValueError:
+                print("Invalid input. Please enter a valid option.")
 
-:param engine: Engine from TTS
-:param url: URL of RSS
-""" 
-def load_rss(engine,url):
+    def main_menu(self):
+        """
+        Display the main menu and its options for interacting with the RSS reader.
+        """
+        while True:
+            self.clear_screen()
+            if not self.url:
+                self.url = self.input_url()
 
-    text = "Choose one:\n{}. {}\n{}. {}\n{}. {}\nN. Next page\nB. Previous page\n0. Exit"
+            print(f"RSS URL feed: {self.url}\n\nOptions:")
+            print("1. Load RSS feed")
+            print("2. Change URL of RSS feed")
+            print("3. Change TTS rate")
+            print("0. Exit")
 
-    text_inv = text + "\nPlease Input one of the avaliable options!\n"
+            choice = input("Select an option: ")
 
-    pos = 0
-
-    NewsFeed = feedparser.parse(url)
-
-    while 1:
-
-        ops = [str(pos+1),str(pos+2),str(pos+3),"N","B","0"]
-
-        clear()
-        print(text.format(pos+1,NewsFeed.entries[pos].title,pos+2,NewsFeed.entries[pos+1].title,pos+3,NewsFeed.entries[pos+2].title))
-        choice = input()
-
-        while choice not in ops:
-            clear()
-            print(text_inv.format(pos+1,NewsFeed.entries[pos].title,pos+2,NewsFeed.entries[pos+1].title,pos+3,NewsFeed.entries[pos+2].title))
-            choice = input()
-
-        if choice == str(pos+1):
-            read_rss(engine,url,pos)
-        elif choice == str(pos+2):
-            read_rss(engine,url,pos+1)
-        elif choice == str(pos+3):
-            read_rss(engine,url,pos+2)
-        elif choice == "N":
-            if pos + 6 <= len(NewsFeed.entries):
-                pos += 3
-        elif choice == "B":
-            if pos - 3 >= 0:
-                pos -= 3
-        elif choice == "0":
-            break
-
-"""
-main_menu: displays the Main menu and its options
-
-:param engine: Engine from TTS
-:param url: URL of RSS
-""" 
-def main_menu(engine,url="None"):
-
-    text = "RSS URL feed: {}\n\nOptions:\n1. Load RSS feed\n2. Change URL of RSS feed\n3. Change TTS rate\n0. Exit\n"
-
-    text_inv = text + "\nPlease Input one of the avaliable options!\n"
-
-    ops = ["0","1","2","3"]
-
-    while 1:
-
-        if url == "None":
-            url = url_input()
-
-        clear()
-        print(text.format(url))
-        choice = input()
-
-        while choice not in ops:
-            clear()
-            print(text_inv.format(url))
-            choice = input()
-
-        if choice == "1":
-            load_rss(engine,url)
-            #read_rss(engine,url,1)
-        elif choice == "2":
-            url = url_input()
-        elif choice == "3":
-            change_rate(engine)
-        elif choice == "0":
-            clear()
-            sys.exit("Goodbye!")
-
+            if choice == "1":
+                self.load_rss()
+            elif choice == "2":
+                self.url = self.input_url()
+            elif choice == "3":
+                self.change_rate()
+            elif choice == "0":
+                self.clear_screen()
+                self.end_voice()
+                print("Goodbye!")
+                break
 
 if __name__ == "__main__":
-    #Create object (voice)
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 175)
-
-    main_menu(engine)
-
-    end_voice(engine)
+    reader = RSSReader()
+    reader.main_menu()
