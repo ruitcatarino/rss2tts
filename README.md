@@ -1,4 +1,5 @@
 # RSS Reader with Text-to-Speech (TTS)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://spdx.org/licenses/MIT.html)
 
 This Python RSS reader utilizes text-to-speech (TTS) to read articles from RSS feeds aloud. It allows you to listen to the latest news and updates from your favorite sources, making it an excellent tool for staying informed while on the go.
 
