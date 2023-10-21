@@ -39,7 +39,7 @@ Clone this repository to your local machine:
 
 ### Poetry
   ```shell
-  poetry run python3 rss2tts.py
+  poetry run python rss2tts.py
   ```
 
 ## Contributing
