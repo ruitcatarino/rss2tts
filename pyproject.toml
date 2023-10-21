@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "rss2tts"
+version = "0.1.0"
+description = "RSS to TTS with language detection"
+authors = ["Rui Catarino <55796280+ruitcatarino@users.noreply.github.com>"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langdetect = "^1.0.9"
+feedparser = "^6.0.10"
+html2text = "^2020.1.16"
+pyttsx3 = "^2.90"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
