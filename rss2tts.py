@@ -129,36 +129,34 @@ class RSSReader:
             self.url = self.prompt_for_rss_url()
 
         index = 0
+        pagination = 3
         NewsFeed = feedparser.parse(self.url)
 
         while True:
-            options = [index + i for i in range(1, 4)] + [8, 9, 0]
             self.clear_screen()
-            for i in range(3):
-                entry_num = index + i + 1
-                if entry_num <= len(NewsFeed.entries):
-                    print(f"{entry_num}. {NewsFeed.entries[index + i].title}")
+            display_entries = NewsFeed.entries[index:index + pagination]
+            for i, entry in enumerate(display_entries):
+                entry_num = index + i
+                print(f"{entry_num}. {entry.title}")
 
-            print("8. Next page\n9. Previous page\n0. Exit")
-            try:
-                choice = int(input("Select an option: "))
-                if choice in options:
-                    if choice == 8:
-                        index = min(index + 3, len(NewsFeed.entries) - 3)
-                    elif choice == 9:
-                        index = max(0, index - 3)
-                    elif choice == 0:
-                        break
+            print("N. Next page\nP. Previous page\nE. Exit")
+            choice = input("Select an option: ")
+            
+            if choice == 'N':
+                index = min(index + pagination, len(NewsFeed.entries) - pagination)
+            elif choice == 'P':
+                index = max(0, index - pagination)
+            elif choice == 'E':
+                break
+            else:
+                try:
+                    choice = int(choice)
+                    if index < choice <= index + pagination and choice < len(NewsFeed.entries):
+                        self.read_article(choice)
                     else:
-                        selected_entry = index + choice - 1
-                        if selected_entry >= 0:
-                            self.read_article(selected_entry)
-                        else:
-                            print("Invalid entry number.")
-                else:
-                    print("Please input a valid option.")
-            except ValueError:
-                print("Invalid input. Please enter a valid option.")
+                        print("Invalid entry number.")
+                except ValueError:
+                    print("Invalid input. Please enter a valid option.")
 
     def main_menu(self):
         """
