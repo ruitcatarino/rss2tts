@@ -57,9 +57,6 @@ class RSSReader:
         Args:
             text (str): The text to be read.
             language (str): The language for TTS.
-
-        Returns:
-            None
         """
         self.change_voice(language)
         self.engine.say(text)
@@ -79,19 +76,12 @@ class RSSReader:
         print("Text in English!" if language != "pt" else "Texto em Português!")
         return "EN-US" if language != "pt" else "PT-BR"
 
-    def rsstotext(self, url, pos):
+    def rsstotext(self, url, index):
         """
         Fetch and convert an article from an RSS feed to plain text.
-
-        Args:
-            url (str): The URL of the RSS feed.
-            pos (int): The position of the article to retrieve.
-
-        Returns:
-            str: The plain text of the article.
         """
         NewsFeed = feedparser.parse(url)
-        entry = NewsFeed.entries[pos]
+        entry = NewsFeed.entries[index]
 
         text_maker = html2text.HTML2Text()
         text_maker.ignore_links = True
